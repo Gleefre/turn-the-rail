@@ -35,6 +35,9 @@
   `(let ((*shift* ,shift))
      ,@body))
 
+(defun toggle-sfx ()
+  (setf *sfx-mute* (not *sfx-mute*)))
+
 ;; soundtrack
 
 (defparameter *soundtrack* NIL)
