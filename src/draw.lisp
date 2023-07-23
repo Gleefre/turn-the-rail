@@ -39,16 +39,34 @@
                     do (s+:with-translate ((* +rail-length+ x) 0)
                          (s:rect -2 10 4 10))))))
         (s+:with-color ((s:hex-to-color "#C2C3C7"))
-          (s:rect -200 13 800 4))
-        #+nil
-        (s:line -500 0 500 0)))))
+          (s:rect -200 13 800 4))))))
 
 (defun draw-rocks ()
   (s+:with-translate ((- (cx *game*)) (- (cy *game*)))
     (loop for (x y) in (sp:qlist (rocks *game*))
           do (s+:with-translate (x y)
                (s+:with-color (s:+black+)
-                 (s:rect 0 0 10 10))))))
+                 (s+:with-color ((s+:filter-alpha (s:hex-to-color "#C2C3C7") 0.5))
+                   (with-shear (-20 20)
+                     (draw-rock-shape 40 40)))
+                 (s+:with-color ((s:hex-to-color "#000000"))
+                   (draw-rock-shape 40 40))
+                 (s+:with-color ((s:hex-to-color "#FF004D"#+nil"#C2C3C7"))
+                   (draw-rock-sign 40 40)))))))
+
+(defun draw-rock-shape (w h)
+  (s+:with-fit (5 5 w h 5/2 5/2)
+    (s:polygon 0 5 1 3 1 1 3 0 3 2 4 1 5 2 5 5)))
+
+(defun draw-rock-sign (w h)
+  (s+:with-fit (10 10 w h 5 5)
+    (flet ((draw-!-sign ()
+             (s:polygon 0 0 2 0 1 4)
+             (s:circle 1 4 1)))
+      (s+:with-translate (3 2)
+        (draw-!-sign))
+      (s+:with-translate (7 4)
+        (draw-!-sign)))))
 
 (defun draw-coins ()
   (s+:with-translate ((- (cx *game*)) (- (cy *game*)))
@@ -56,7 +74,7 @@
           do (s+:with-translate (x y)
                (s+:with-color ((s+:filter-alpha (s:hex-to-color "#C2C3C7") .5))
                  (draw-coin-shape 15 15))
-               (s+:with-translate (0 (- (1+ (/ (sin (cycle-pos *game-clock* -30 30 :multiplier 5)) 2))))
+               (s+:with-translate (0 (- (+ 3/2 (/ (sin (cycle-pos *game-clock* -30 30 :multiplier 5)) 2))))
                  (s+:with-color ((s:hex-to-color "#FFEC27"))
                    (draw-coin-shape 15 15))
                  (s+:with-color ((s:hex-to-color "#FFA300"))
@@ -67,13 +85,8 @@
     (loop for (x y) in (sp:qlist (life-orbs *game*))
           do (s+:with-translate (x y)
                (s+:with-color ((s+:filter-alpha (s:hex-to-color "#C2C3C7") .5))
-                 (s+:with-translate (0 10)
-                   (s::set-matrix* #.(sb-cga::matrix 1f0 -0.5f0 0f0 0f0
-                                                     0f0 .75f0 0f0 0f0
-                                                     0f0 0f0 1f0 0f0
-                                                     0f0 0f0 0f0 1f0))
-                   (s+:with-translate (0 -10)
-                     (draw-heart-shape 20 20))))
+                 (with-shear (0 10)
+                   (draw-heart-shape 20 20)))
                (s+:with-color ((s:hex-to-color "#FF004D"))
                  (draw-heart-shape 20 20))
                (s+:with-color ((s:hex-to-color "#FF77A8"))
@@ -88,13 +101,8 @@
                                   10))
                         0 15)
           (s+:with-color ((s+:filter-alpha (s:hex-to-color "#C2C3C7") .5))
-            (s+:with-translate (-20 15)
-              (s::set-matrix* #.(sb-cga::matrix 1f0 -0.75f0 0f0 0f0
-                                                0f0 0.75f0 0f0 0f0
-                                                0f0 0f0 1f0 0f0
-                                                0f0 0f0 0f0 1f0))
-              (s+:with-translate (20 -15)
-                (draw-train-shape 40 30))))
+            (with-shear (-20 15)
+              (draw-train-shape 40 30)))
           (s+:with-color ((s:hex-to-color "#7E2553"))
             (draw-train-shape 40 30)))))))
 

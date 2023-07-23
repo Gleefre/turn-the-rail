@@ -42,3 +42,16 @@
      (- dt
         (abs (- (mod (+ (- offset start) (* multiplier (sc:time clock))) (* 2 dt))
                 dt)))))
+
+(defmacro with-shear ((cx cy) &body body
+                      &aux ($cx (gensym "CX"))
+                           ($cy (gensym "CY")))
+  `(let ((,$cx ,cx)
+         (,$cy ,cy))
+     (s+:with-translate (,$cx ,$cy)
+       (s::set-matrix* #.(sb-cga::matrix 1f0 -0.5f0 0f0 0f0
+                                         0f0 .75f0 0f0 0f0
+                                         0f0 0f0 1f0 0f0
+                                         0f0 0f0 0f0 1f0))
+       (s+:with-translate ((- ,$cx) (- ,$cy))
+         ,@body))))
