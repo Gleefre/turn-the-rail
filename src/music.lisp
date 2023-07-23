@@ -23,11 +23,17 @@
 
 (defparameter *sfx-mute* NIL)
 
+(defparameter *shift* 0)
+
 (defun sfx (&rest notes)
   (unless *sfx-mute*
     (dolist (x notes)
-      (a:when-let ((note (note x)))
+      (a:when-let ((note (note (+ *shift* x))))
         (h:play note :reset T)))))
+
+(defmacro with-shift (shift &body body)
+  `(let ((*shift* ,shift))
+     ,@body))
 
 ;; soundtrack
 
