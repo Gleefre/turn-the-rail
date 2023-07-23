@@ -1,10 +1,9 @@
 (in-package #:turn-the-rail)
 
 (s:defsketch game-window ((s:title "Turn the rail")
-                          (clock (sc:make-clock))
-                          (game (make-game clock)))
+                          (game (make-game)))
   (let ((*game* game)
-        (*game-clock* clock)
+        (*game-clock* (game-clock game))
         (*game-window* s::*sketch*))
     (draw-game s:width s:height)))
 
@@ -15,13 +14,13 @@
 
 (defmethod kit.sdl2:mousebutton-event :around ((window game-window) state ts button x y)
   (let ((*game* (game-window-game window))
-        (*game-clock* (game-window-clock window))
+        (*game-clock* (game-clock (game-window-game window)))
         (*game-window* window))
     (call-next-method)))
 
 (defmethod kit.sdl2:keyboard-event :around ((window game-window) state ts rep? keysym)
   (let ((*game* (game-window-game window))
-        (*game-clock* (game-window-clock window))
+        (*game-clock* (game-clock (game-window-game window)))
         (*game-window* window))
     (call-next-method)))
 

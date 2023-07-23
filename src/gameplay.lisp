@@ -6,12 +6,13 @@
 (defparameter +camera-height+ 300)
 
 (defclass game ()
-  ((mode :initform :idle :type (member :idle :game)
+  ((clock :initarg :clock :accessor game-clock)
+   (mode :initform :idle :type (member :idle :game)
          :accessor mode)
    (rocks :initform (sp:queue) :accessor rocks)
    (coins :initform (sp:queue) :accessor coins)
    (life-orbs :initform (sp:queue) :accessor life-orbs)
-   (cx :initform   0 :accessor cx)  ;; top left corner
+   (cx :initform   0 :accessor cx) ;; top left corner
    (cy :initform   0 :accessor cy)
    (x  :initform 100 :accessor x)
    (y  :initform 150 :accessor y)
@@ -19,12 +20,14 @@
    (score :initform 0 :accessor score)
    (next-score-line :initform 0 :accessor score-line)
    (frame-clock :initarg :frame-clock :accessor frame-clock)
-   (rotate-clock :initarg :rotate-clock :accessor rotate-clock)))
+   (rotate-clock :initarg :rotate-clock :accessor rotate-clock)
+   (animation :initform nil :accessor animation)))
 
-(defun make-game (clock)
+(defun make-game (&aux (clock (sc:make-clock :speed +game-speed+)))
   (make-instance 'game
+                 :clock clock
                  :frame-clock (sc:make-clock :time-source clock)
-                 :rotate-clock (sc:make-clock :time-source clock)))
+                 :rotate-clock (sc:make-clock :time-source clock :paused t)))
 
 (defun update-game ()
   (generate-rocks-and-rolls)
