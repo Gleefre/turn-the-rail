@@ -2,7 +2,6 @@
 
 (defun draw-game (w h)
   (update-game)
-  (s:background (s:hex-to-color "#83769C"))
   (s+:with-split (w h :vertical)
     (1 (draw-header w h))
     (6 (draw-world w h))))
@@ -10,6 +9,8 @@
 ;; World
 
 (defun draw-world (w h)
+  (s+:with-color ((s:hex-to-color "#29ADFF"))
+    (s:rect 0 0 2 h))
   (s+:with-fit (400 300 w h)
     (s+:with-scissor (0 0 400 300)
       (s+:with-scale (1 1 200 150)
@@ -19,7 +20,7 @@
         (draw-coins)
         (draw-life-orbs)
         (draw-train))
-      (s+:with-color ((s:hex-to-color "#83769C"))
+      (s+:with-color ((s:hex-to-color "#29ADFF"))
         (draw-train-outline 400 300)))))
 
 (defun draw-background ()
@@ -53,15 +54,26 @@
   (s+:with-translate ((- (cx *game*)) (- (cy *game*)))
     (loop for (x y) in (sp:qlist (coins *game*))
           do (s+:with-translate (x y)
-               (s+:with-color ((s:hex-to-color "#FFEC27"))
+               (s+:with-color ((s+:filter-alpha (s:hex-to-color "#C2C3C7") .5))
                  (draw-coin-shape 15 15))
-               (s+:with-color ((s:hex-to-color "#FFA300"))
-                 (draw-train-shape 10 10))))))
+               (s+:with-translate (0 (- (1+ (/ (sin (cycle-pos *game-clock* -30 30 :multiplier 5)) 2))))
+                 (s+:with-color ((s:hex-to-color "#FFEC27"))
+                   (draw-coin-shape 15 15))
+                 (s+:with-color ((s:hex-to-color "#FFA300"))
+                   (draw-train-shape 10 10)))))))
 
 (defun draw-life-orbs ()
   (s+:with-translate ((- (cx *game*)) (- (cy *game*)))
     (loop for (x y) in (sp:qlist (life-orbs *game*))
           do (s+:with-translate (x y)
+               (s+:with-color ((s+:filter-alpha (s:hex-to-color "#C2C3C7") .5))
+                 (s+:with-translate (0 10)
+                   (s::set-matrix* #.(sb-cga::matrix 1f0 -0.5f0 0f0 0f0
+                                                     0f0 .75f0 0f0 0f0
+                                                     0f0 0f0 1f0 0f0
+                                                     0f0 0f0 0f0 1f0))
+                   (s+:with-translate (0 -10)
+                     (draw-heart-shape 20 20))))
                (s+:with-color ((s:hex-to-color "#FF004D"))
                  (draw-heart-shape 20 20))
                (s+:with-color ((s:hex-to-color "#FF77A8"))
@@ -73,7 +85,16 @@
     (s+:with-translate ((x *game*) (y *game*))
       (s+:with-rotate ((α *game*))
         (s+:with-scale (1 (+ 1 (/ (sin (cycle-pos *game-clock* -30 30 :multiplier 2))
-                                  10)))
+                                  10))
+                        0 15)
+          (s+:with-color ((s+:filter-alpha (s:hex-to-color "#C2C3C7") .5))
+            (s+:with-translate (-20 15)
+              (s::set-matrix* #.(sb-cga::matrix 1f0 -0.75f0 0f0 0f0
+                                                0f0 0.75f0 0f0 0f0
+                                                0f0 0f0 1f0 0f0
+                                                0f0 0f0 0f0 1f0))
+              (s+:with-translate (20 -15)
+                (draw-train-shape 40 30))))
           (s+:with-color ((s:hex-to-color "#7E2553"))
             (draw-train-shape 40 30)))))))
 
