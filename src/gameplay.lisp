@@ -5,20 +5,36 @@
 (defparameter +camera-width+ 400)
 (defparameter +camera-height+ 300)
 
-(defparameter +game-speed+ 1)
+(defparameter +game-speed+ 2)
 (defparameter +time-stop-speed+ 1/10)
 
-(defparameter +d-score-line+ 50)
-
 (defparameter +train-speed+ 100)
+
+;; rock is 40x40
+;; coin is 20x20
+;; life is 20x20
+;; train is 40x30
+;; map is 400x300
+
+(defparameter +rock-offset+ 0)
+(defparameter +rock-interval+ 90)
+
+(defparameter +coin-offset+ 50)
+(defparameter +coin-interval+ 180)
+
+(defparameter +life-offset+ 70)
+(defparameter +life-interval+ 270)
+
+;; +1 to score happens every 50 squares
+(defparameter +d-score-line+ 50)
 
 (defclass game ()
   ((clock :initarg :clock :accessor game-clock)
    (mode :initform :idle :type (member :idle :game)
          :accessor mode)
-   (rocks :initform (sp:queue) :accessor rocks)
-   (coins :initform (sp:queue) :accessor coins)
-   (life-orbs :initform (sp:queue) :accessor life-orbs)
+   (rocks :initform (sp:queue (list +rock-offset+ -100)) :accessor rocks)
+   (coins :initform (sp:queue (list +coin-offset+ -100)) :accessor coins)
+   (life-orbs :initform (sp:queue (list +life-offset+ -100)) :accessor life-orbs)
    (cx :initform   0 :accessor cx) ;; top left corner
    (cy :initform   0 :accessor cy)
    (x  :initform 100 :accessor x)
