@@ -18,17 +18,18 @@
    (α  :initform   0 :accessor α)
    (score :initform 0 :accessor score)
    (next-score-line :initform 0 :accessor score-line)
-   (frame-clock :initarg :frame-clock :accessor frame-clock)))
+   (frame-clock :initarg :frame-clock :accessor frame-clock)
+   (rotate-clock :initarg :rotate-clock :accessor rotate-clock)))
 
 (defun make-game (clock)
-  (make-instance 'game :frame-clock (sc:make-clock :time-source clock)))
+  (make-instance 'game
+                 :frame-clock (sc:make-clock :time-source clock)
+                 :rotate-clock (sc:make-clock :time-source clock)))
 
 (defun update-game ()
   (generate-rocks-and-rolls)
-  (move-train)
-  (setf (α *game*) (cycle-pos (frame-clock *game*) -30 30 :multiplier 0 :offset (α *game*)))
-  (setf (α *game*)
-        (a:clamp (α *game*) -30 30)))
+  (rotate-rails)
+  (move-train))
 
 ;; generating stuff
 
@@ -65,7 +66,10 @@
   (loop for x from (+ 100 (lastx life-orbs)) to (+ 500 (x *game*)) by 100
         do (sp:enq (list x (random 900)) life-orbs)))
 
-;; move the train
+;; moving the train
+
+(defun rotate-rails ()
+  (setf (α *game*) (cycle-pos (rotate-clock *game*) -20 20 :multiplier 100)))
 
 (defparameter +train-speed+ 10)
 
@@ -74,8 +78,14 @@
   (incf (x *game*) (* +train-speed+ dt))
   (incf (y *game*) (* +train-speed+ dt
                       (tan (s:radians (α *game*)))))
+  (update-camera)
+  (check-collisions))
+
+(defun update-camera ()
   (setf (cx *game*) (- (x *game*) 100)
         (cy *game*) 0))
+
+(defun check-collisions ())
 
 ;; controls
 
@@ -98,9 +108,16 @@
 (defun click-on-mute-sfx ()
   (toggle-sfx))
 
+(defun start-game ()
+  (setf (mode *game*) :game))
+
 (defun press-space ()
   (case (mode *game*)
     (:idle (start-game))
-    (:game)))
+    (:game (setf (sc:speed *game-clock*) 1/10
+                 (sc:paused (rotate-clock *game*)) nil))))
 
-(defun release-space ())
+(defun release-space ()
+  (case (mode *game*)
+    (:game (setf (sc:speed *game-clock*) 5
+                 (sc:paused (rotate-clock *game*)) t))))
