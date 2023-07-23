@@ -29,3 +29,8 @@
                    (s:make-font :face (s:load-resource (data-path "font/PromptFont.ttf"))
                                 :color s:+black+
                                 :size 16)))))
+
+(defun pop-time (clock)
+  (sc:with-freeze clock
+    (prog1 (sc:time clock)
+      (setf (sc:time clock) 0))))
