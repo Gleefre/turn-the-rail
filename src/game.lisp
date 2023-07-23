@@ -8,7 +8,7 @@
         (*game-window* s::*sketch*))
     (draw-game s:width s:height)))
 
-(s:define-start-function (start) game-window (:resizable t :width 800 :height 1000)
+(s:define-start-function (start) game-window (:resizable t :width 800 :height 600)
   (:start (music-init))
   (:setup (_) (play-soundtrack))
   (:on-close (_) (mute-soundtrack)))
