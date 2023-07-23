@@ -108,7 +108,8 @@
 
 ;; controls
 
-(defun click-on-pause ())
+(defun click-on-pause ()
+  (sc:toggle *game-clock*))
 
 (defun click-on-mute-soundtrack ()
   (toggle-soundtrack))
