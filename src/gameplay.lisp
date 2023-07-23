@@ -37,8 +37,8 @@
    (life-orbs :initform (sp:queue (list +life-offset+ -100)) :accessor life-orbs)
    (cx :initform   0 :accessor cx) ;; top left corner
    (cy :initform   0 :accessor cy)
-   (x  :initform 100 :accessor x)
-   (y  :initform 150 :accessor y)
+   (x  :initform 100 :accessor x)  ;; center of train
+   (y  :initform 165 :accessor y)  ;; bottom of train, center of the rail
    (α  :initform   0 :accessor α)
    (score :initform 0 :accessor score)
    (next-score-line :initform 0 :accessor score-line)

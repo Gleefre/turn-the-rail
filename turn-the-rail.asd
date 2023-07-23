@@ -21,6 +21,7 @@
   :components ((:file "packages")
                (:file "specials")
                (:file "utils")
+               (:file "geometry")
                (:file "music")
                (:file "gameplay")
                (:file "draw")
