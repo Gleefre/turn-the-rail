@@ -74,7 +74,9 @@
 
 (defun draw-score (w h))
 (defun draw-pause (w h)
-  (s:text (format nil "~,0F ~,0F -- ~,0F ~,0F"
+  (s:text (format nil "~,0F ~,0F -- ~,0F ~,0F~%angle: ~$"
                   (x *game*) (y *game*)
-                  (cx *game*) (cy *game*)) 0 0))
+                  (cx *game*) (cy *game*)
+                  (α *game*))
+          0 0))
 (defun draw-menu (w h))
