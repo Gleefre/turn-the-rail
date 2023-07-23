@@ -5,6 +5,13 @@
 (defparameter +camera-width+ 400)
 (defparameter +camera-height+ 300)
 
+(defparameter +game-speed+ 1)
+(defparameter +time-stop-speed+ 1/10)
+
+(defparameter +d-score-line+ 50)
+
+(defparameter +train-speed+ 100)
+
 (defclass game ()
   ((clock :initarg :clock :accessor game-clock)
    (mode :initform :idle :type (member :idle :game)
@@ -74,8 +81,6 @@
 (defun rotate-rails ()
   (setf (α *game*) (cycle-pos (rotate-clock *game*) -20 20 :multiplier 100)))
 
-(defparameter +train-speed+ 10)
-
 (defun move-train (&aux (dt (pop-time (frame-clock *game*))))
   (s:text (format nil "~,4F" dt) 0 0)
   (incf (x *game*) (* +train-speed+ dt))
@@ -112,15 +117,17 @@
   (toggle-sfx))
 
 (defun start-game ()
-  (setf (mode *game*) :game))
+  (setf (mode *game*) :game)
+  (setf (score-line *game*)
+        (+ (x *game*) +d-score-line+)))
 
 (defun press-space ()
   (case (mode *game*)
     (:idle (start-game))
-    (:game (setf (sc:speed *game-clock*) 1/10
+    (:game (setf (sc:speed *game-clock*) +time-stop-speed+
                  (sc:paused (rotate-clock *game*)) nil))))
 
 (defun release-space ()
   (case (mode *game*)
-    (:game (setf (sc:speed *game-clock*) 5
+    (:game (setf (sc:speed *game-clock*) +game-speed+
                  (sc:paused (rotate-clock *game*)) t))))

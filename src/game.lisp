@@ -36,4 +36,6 @@
          (click-on-mute-soundtrack)))
       (:scancode-f
        (when (eq state :keydown)
-         (click-on-mute-sfx))))))
+         (click-on-mute-sfx)))
+      (:scancode-r
+       (setf (y *game*) 150)))))
