@@ -34,3 +34,11 @@
   (sc:with-freeze clock
     (prog1 (sc:time clock)
       (setf (sc:time clock) 0))))
+
+(defun cycle-pos (clock start end &key (multiplier 1)
+                                       (offset 0)
+                  &aux (dt (- end start)))
+  (+ start
+     (- dt
+        (abs (- (mod (+ (- offset start) (* multiplier (sc:time clock))) (* 2 dt))
+                dt)))))
