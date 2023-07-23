@@ -1,8 +1,8 @@
 (in-package #:turn-the-rail)
 
 (s:defsketch game-window ((s:title "Turn the rail")
-                          (game (make-game))
-                          (clock (sc:make-clock)))
+                          (clock (sc:make-clock))
+                          (game (make-game clock)))
   (let ((*game* game)
         (*game-clock* clock)
         (*game-window* s::*sketch*))
