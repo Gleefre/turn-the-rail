@@ -11,12 +11,12 @@
 ** Description
    Turn the rail to avoid crashing into the rocks!
 ** Controls
-   [SPACE] - Start the game / Turn the rail.
-   [ESC]   - Close the game.
-   [M]     - Mute / Unmute the soundtrack.
-   [F]     - Mute / Unmute the sound effects.
-   [P]     - Pause the game.
-   [R]     - Restart the game (fast).
+   - [SPACE] - Start the game / Turn the rail.
+   - [ESC]   - Close the game.
+   - [M]     - Mute / Unmute the soundtrack.
+   - [F]     - Mute / Unmute the sound effects.
+   - [P]     - Pause the game.
+   - [R]     - Restart the game (fast).
 ** Credits
    Code, art, sound: Gleefre
 
