@@ -122,7 +122,8 @@
 (defun generate-coins (&aux (coins (coins *game*)))
   (clear-lost coins)
   (loop for x from (+ 100 (lastx coins)) to (+ 500 (x *game*)) by 100
-        do (sp:enq (list x (if (random-chance +coin-chance+)
+        do (sp:enq (list x (if (and (not (eq (mode *game*) :idle))
+                                    (random-chance +coin-chance+))
                                (random 300)
                                -200))
                    coins)))
@@ -130,7 +131,8 @@
 (defun generate-life-orbs (&aux (life-orbs (life-orbs *game*)))
   (clear-lost life-orbs)
   (loop for x from (+ 100 (lastx life-orbs)) to (+ 500 (x *game*)) by 100
-        do (sp:enq (list x (if (random-chance +life-chance+)
+        do (sp:enq (list x (if (and (not (eq (mode *game*) :idle))
+                                    (random-chance +life-chance+))
                                (random 300)
                                -200))
                    life-orbs)))
