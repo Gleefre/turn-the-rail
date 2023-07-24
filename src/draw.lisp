@@ -218,7 +218,7 @@ Use SPACE to turn the rain." 400 (cycle-pos *game-clock* 325 335 :multiplier 5))
           (s+:with-scale ((cos (* 1/2 pi v)) (cos (* 1/2 pi v)) 400 350)
             (s:with-font (s:make-font :size 40 :align :center :color (s:hex-to-color "#1D2B53"))
               (s:text "Press SPACE to start.
-Use SPACE to turn the rain." 400 (cycle-pos *game-clock* 325 335 :multiplier 5))))))))
+Use SPACE to turn the rail." 400 (cycle-pos *game-clock* 325 335 :multiplier 5))))))))
 
 (defmacro named-button ((x y w h name &optional (dy 1/3)) (&optional (when :press)) &body press-body)
   `(progn
