@@ -7,14 +7,20 @@
 
 * About
   This is a submission for [[https://itch.io/jam/trijam-229][Trijam #229]].
-** Development time: ...
-   ...
+** Development time: 8h
 ** Description
-   ...
+   Turn the rail to avoid crashing into the rocks!
 ** Controls
-   ...
+   [SPACE] - Start the game / Turn the rail.
+   [ESC]   - Close the game.
+   [M]     - Mute / Unmute the soundtrack.
+   [F]     - Mute / Unmute the sound effects.
+   [P]     - Pause the game.
+   [R]     - Restart the game (fast).
 ** Credits
-   ...
+   Code, art, sound: Gleefre
+
+   The sountrack is from one of my previous games.
 ** Reporting bugs
    Feel free to report bugs using issues on github.
 * Installation
@@ -81,6 +87,7 @@
 **** Supported implementations
      sbcl, ccl, ecl.
 * Screenshots
+  [[screens/screen-1.png]]
 * License
    Copyright 2023 Gleefre
 
