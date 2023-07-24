@@ -1,10 +1,12 @@
 (in-package #:turn-the-rail)
 
 (s:defsketch game-window ((s:title "Turn the rail")
-                          (game (make-game)))
+                          (game (make-game))
+                          (random-state (make-random-state T)))
   (let ((*game* game)
         (*game-clock* (game-clock game))
-        (*game-window* s::*sketch*))
+        (*game-window* s::*sketch*)
+        (*random-state* random-state))
     (draw-game s:width s:height)))
 
 (s:define-start-function (start) game-window (:resizable t :width 800 :height 600)
@@ -15,13 +17,15 @@
 (defmethod kit.sdl2:mousebutton-event :around ((window game-window) state ts button x y)
   (let ((*game* (game-window-game window))
         (*game-clock* (game-clock (game-window-game window)))
-        (*game-window* window))
+        (*game-window* window)
+        (*random-state* (game-window-random-state window)))
     (call-next-method)))
 
 (defmethod kit.sdl2:keyboard-event :around ((window game-window) state ts rep? keysym)
   (let ((*game* (game-window-game window))
         (*game-clock* (game-clock (game-window-game window)))
-        (*game-window* window))
+        (*game-window* window)
+        (*random-state* (game-window-random-state window)))
     (call-next-method)))
 
 (defmethod kit.sdl2:keyboard-event ((window game-window) state ts rep? keysym)
