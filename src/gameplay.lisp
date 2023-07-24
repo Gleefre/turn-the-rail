@@ -21,9 +21,11 @@
 
 (defparameter +coin-offset+ 50)
 (defparameter +coin-interval+ 180)
+(defparameter +coin-chance+ 1/2)
 
 (defparameter +life-offset+ 70)
 (defparameter +life-interval+ 270)
+(defparameter +life-chance+ 1/10)
 
 ;; +1 to score happens every 50 squares
 (defparameter +d-score-line+ 50)
@@ -32,15 +34,16 @@
   ((clock :initarg :clock :accessor game-clock)
    (mode :initform :idle :type (member :idle :game)
          :accessor mode)
-   (rocks :initform (sp:queue (list +rock-offset+ -100)) :accessor rocks)
-   (coins :initform (sp:queue (list +coin-offset+ -100)) :accessor coins)
-   (life-orbs :initform (sp:queue (list +life-offset+ -100)) :accessor life-orbs)
+   (rocks :initform (sp:queue (list +rock-offset+ -200)) :accessor rocks)
+   (coins :initform (sp:queue (list +coin-offset+ -200)) :accessor coins)
+   (life-orbs :initform (sp:queue (list +life-offset+ -200)) :accessor life-orbs)
    (cx :initform   0 :accessor cx) ;; top left corner
    (cy :initform   0 :accessor cy)
    (x  :initform 100 :accessor x)  ;; center of train
    (y  :initform 165 :accessor y)  ;; bottom of train, center of the rail
    (α  :initform   0 :accessor α)
    (score :initform 0 :accessor score)
+   (lifes :initform 3 :accessor lifes)
    (next-score-line :initform 0 :accessor score-line)
    (frame-clock :initarg :frame-clock :accessor frame-clock)
    (rotate-clock :initarg :rotate-clock :accessor rotate-clock)
@@ -77,20 +80,60 @@
       (x *game*)
       (car (sp:qback queue))))
 
+(defun rock-mode ()
+  (cond
+    ((eq (mode *game*) :idle) :stand-by)
+    ((< (score *game*) 10) :easy)
+    ((< (score *game*) 20) :medium)
+    ((< (score *game*) 30) :hard)
+    ((< (score *game*) 40) :hell)
+    (t :impossible)))
+
 (defun generate-rocks (&aux (rocks (rocks *game*)))
   (clear-lost rocks)
   (loop for x from (+ 100 (lastx rocks)) to (+ 500 (x *game*)) by 100
-        do (sp:enq (list x (random 300)) rocks)))
+        do (case (rock-mode)
+             (:stand-by
+              (sp:enq (list x 100) rocks)
+              (sp:enq (list x 200) rocks))
+             (:easy
+              (sp:enq (list x (if (random-chance 1/2)
+                                  (random 300)
+                                  -200))
+                      rocks))
+             (:medium
+              (sp:enq (list x (if (random-chance 2/3)
+                                  (+ 50 (random 200))
+                                  (if (random-chance 1/3)
+                                      (a:random-elt (list (random 50)
+                                                          (+ 250 (random 50))))
+                                      -200)))
+                      rocks))
+             (:hard (sp:enq (list x (random 300)) rocks))
+             (:hell
+              (sp:enq (list (- x (random +rock-interval+)) (random 300)) rocks)
+              (sp:enq (list x (random 300)) rocks))
+             (:impossible
+              (sp:enq (list (- x (random +rock-interval+)) (random 300)) rocks)
+              (sp:enq (list (- x (random +rock-interval+)) (random 300)) rocks)
+              (sp:enq (list x (random 300)) rocks)
+              (sp:enq (list x (random 300)) rocks)))))
 
 (defun generate-coins (&aux (coins (coins *game*)))
   (clear-lost coins)
   (loop for x from (+ 100 (lastx coins)) to (+ 500 (x *game*)) by 100
-        do (sp:enq (list x (random 600)) coins)))
+        do (sp:enq (list x (if (random-chance +coin-chance+)
+                               (random 300)
+                               -200))
+                   coins)))
 
 (defun generate-life-orbs (&aux (life-orbs (life-orbs *game*)))
   (clear-lost life-orbs)
   (loop for x from (+ 100 (lastx life-orbs)) to (+ 500 (x *game*)) by 100
-        do (sp:enq (list x (random 900)) life-orbs)))
+        do (sp:enq (list x (if (random-chance +life-chance+)
+                               (random 300)
+                               -200))
+                   life-orbs)))
 
 ;; moving the train
 
@@ -144,12 +187,14 @@
 
 (defun collect-coin (coin)
   (incf (score *game*))
-  (setf (cadr coin) -100))
+  (setf (cadr coin) -200))
 
 (defun collect-life-orb (life-orb)
-  (setf (cadr life-orb) -100))
+  (setf (cadr life-orb) -200))
 
-(defun collide-with-rock (rock))
+(defun collide-with-rock (rock)
+  (decf (score *game*) 20)
+  (setf (cadr rock) -200))
 
 ;; controls
 

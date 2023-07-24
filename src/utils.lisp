@@ -55,3 +55,6 @@
                                          0f0 0f0 0f0 1f0))
        (s+:with-translate ((- ,$cx) (- ,$cy))
          ,@body))))
+
+(defun random-chance (chance)
+  (< (random (float (/ chance))) 1))
