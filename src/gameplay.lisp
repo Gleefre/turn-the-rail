@@ -34,7 +34,8 @@
 (defparameter +d-score-line+ 50)
 
 (defclass game ()
-  ((clock :initarg :clock :accessor game-clock)
+  ((main-clock :initarg :main-clock :accessor main-clock)
+   (clock :initarg :clock :accessor game-clock)
    (mode :initform :idle :type (member :idle :game)
          :accessor mode)
    (rocks :initform (sp:queue (list +rock-offset+ -200)) :accessor rocks)
@@ -53,8 +54,16 @@
    (animation :initform nil :accessor animation)
    (directions-animation-clock :initform nil :accessor dac)))
 
-(defun make-game (&aux (clock (sc:make-clock :speed +game-speed+)))
+(defun copy-into-game (new-game)
+  (dolist (slot '(mode rocks coins life-orbs cx cy x y α score lifes next-score-line
+                  clock rotate-clock frame-clock directions-animation-clock))
+    (setf (slot-value *game* slot)
+          (slot-value new-game slot))))
+
+(defun make-game (&aux (mc (sc:make-clock :speed 1))
+                       (clock (sc:make-clock :speed +game-speed+ :time-source mc)))
   (make-instance 'game
+                 :main-clock mc
                  :clock clock
                  :frame-clock (sc:make-clock :time-source clock)
                  :rotate-clock (sc:make-clock :time-source clock :paused t)))
@@ -163,7 +172,8 @@
   (unless (eq (mode *game*) :idle)
     (loop while (>= (x *game*) (score-line *game*))
           do (incf (score-line *game*) +d-score-line+)
-             (incf (score *game*)))))
+             (incf (score *game*))
+             (sc:accelerate (main-clock *game*) 21/20))))
 
 (defun update-camera ()
   (setf (cx *game*) (- (x *game*) 100)
@@ -249,10 +259,12 @@
 (defun press-space ()
   (case (mode *game*)
     (:idle (start-game))
-    (:game (setf (sc:speed *game-clock*) +time-stop-speed+
-                 (sc:paused (rotate-clock *game*)) nil))))
+    (:game
+     (setf (sc:speed *game-clock*) +time-stop-speed+
+           (sc:paused (rotate-clock *game*)) nil))))
 
 (defun release-space ()
   (case (mode *game*)
-    (:game (setf (sc:speed *game-clock*) +game-speed+
-                 (sc:paused (rotate-clock *game*)) t))))
+    (:game
+     (setf (sc:speed *game-clock*) +game-speed+
+           (sc:paused (rotate-clock *game*)) t))))
