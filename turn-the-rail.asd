@@ -1,6 +1,6 @@
 (asdf:defsystem "turn-the-rail"
   :description "Turn The Rail - Game for the Trijam #229"
-  :version "0.0.0"
+  :version "0.1.0"
   :author "Gleefre <varedif.a.s@gmail.com>"
   :licence "Apache 2.0"
 
