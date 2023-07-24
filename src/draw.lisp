@@ -2,9 +2,9 @@
 
 (defun draw-game (w h)
   (update-game)
-  (s+:with-split (w h :vertical)
-    (1 (draw-header w h))
-    (6 (draw-world w h))))
+  (s+:with-fit (400 300 w h)
+    (draw-world 400 300)
+    (draw-header 400 300)))
 
 ;; World
 
@@ -131,29 +131,72 @@
       (s:polygon -1 13 -1 10 1 12 2 12 3 11 4 12 5 12 6 11 9 11 10
                  12 11 12 12 11 13 12 14 12 15 11 15 10 17 10 17 13))))
 
+(defun start-end-animation ())
+
 ;; Header
 
 (defun draw-header (w h)
-  (s+:with-color ((s:hex-to-color "#FFF1E8"))
-    (s:rect 0 0 w h))
-  (s+:with-split (w h :horizontal)
-    (2 (draw-score w h))
-    (1 (draw-pause w h))
-    (2 (draw-menu w h))))
+  (s+:with-fit (800 600 w h)
+    (draw-score)
+    (draw-lifes)
+    (if (eq (mode *game*) :idle)
+        (draw-directions)
+        (animate-directions))
+    (draw-buttons)))
 
-(defun draw-score (w h)
-  (s:with-font (s:make-font :size 30 :align :left :color (s:hex-to-color "#1D2B53"))
-    (s:text (format nil "Score: ~A Lifes: ~A" (score *game*) (lifes *game*)) 0 0)))
+(defun draw-score ()
+  (s:with-font (s:make-font :size 50 :align :right :color (s:hex-to-color "#1D2B53"))
+    (s:text (format nil "Score: ~3,'0D" (score *game*))
+            800 0)))
+
+(defun draw-lifes ()
+  (s+:with-fit (16 12 800 600)
+    (loop for x in `(,(+ 11 2/3) 13 ,(- 15 2/3))
+          for i from 1
+          do (s:with-pen (if (<= i (lifes *game*))
+                             (s:make-pen :fill (s:hex-to-color "#FF77A8"))
+                             (s:make-pen :stroke (s:hex-to-color "#FF77A8")))
+               (s+:with-translate (x 3/2)
+                 (draw-heart-shape 1 1))))))
+
+(defun draw-directions ()
+  (s:with-font (s:make-font :size 50 :align :center :color (s:hex-to-color "#1D2B53"))
+    (s:text "Press SPACE to start." 400 (cycle-pos *game-clock* 345 355 :multiplier 5))))
+
+(defun animate-directions ()
+  (when (dac *game*)
+    (let ((v (/ (sc:time (dac *game*)) 3)))
+      (if (> v 1)
+          (setf (dac *game*) nil)
+          (s+:with-scale ((cos (* 1/2 pi v)) (cos (* 1/2 pi v)) 400 350)
+            (s:with-font (s:make-font :size 50 :align :center :color (s:hex-to-color "#1D2B53"))
+              (s:text "Press SPACE to start." 400 (cycle-pos *game-clock* 345 355 :multiplier 5))))))))
+
+(defmacro named-button ((x y w h name &optional (dy 1/3)) (&optional (when :press)) &body press-body)
+  `(progn
+     (s:rect ,x ,y ,w ,h)
+     (s:text ,name (+ ,x (/ ,w 2)) (+ ,y (* ,h ,dy)))
+     (sb:binds (sb:brect ,x ,y ,w ,h)
+       ,when (lambda (b)
+               (declare (ignorable b))
+               ,@press-body))))
+
+(defun draw-buttons ()
+  (let ((w 200) (h 200))
+    (s+:with-fit (w h 150 150 0 0 400 100)
+      (s+:with-color ((s:hex-to-color "#5F574F"))
+        (s:with-font (s:make-font :size 25 :align :center :color (s:hex-to-color "#1D2B53"))
+          (s+:with-split (w h :vertical)
+            (1 (named-button (10 10 (- w 20) (- h 20) "Quit [ESC]" 1/4) ()
+                 (kit.sdl2:close-window *game-window*)))
+            (1 (named-button (30 10 (- w 20) (- h 20) "Mute [M/F]" 1/4) ()
+                 (click-on-mute-sfx)
+                 (click-on-mute-soundtrack)))
+            (1 (named-button (50 10 (- w 20) (- h 20) "Pause [P]" 1/4) ()
+                 (click-on-pause)))))))))
 
 (defun draw-pause (w h)
   (s:with-font (s:make-font :size 30 :align :center :color (s:hex-to-color "#1D2B53"))
     (s:text "||" (/ w 2) 0 40 40)))
-
-(defun draw-debug (w h)
-  (s:text (format nil "~,0F ~,0F -- ~,0F ~,0F~%angle: ~$"
-                  (x *game*) (y *game*)
-                  (cx *game*) (cy *game*)
-                  (α *game*))
-          0 0))
 
 (defun draw-menu (w h))

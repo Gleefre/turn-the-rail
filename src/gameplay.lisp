@@ -50,7 +50,8 @@
    (next-score-line :initform 0 :accessor score-line)
    (frame-clock :initarg :frame-clock :accessor frame-clock)
    (rotate-clock :initarg :rotate-clock :accessor rotate-clock)
-   (animation :initform nil :accessor animation)))
+   (animation :initform nil :accessor animation)
+   (directions-animation-clock :initform nil :accessor dac)))
 
 (defun make-game (&aux (clock (sc:make-clock :speed +game-speed+)))
   (make-instance 'game
@@ -97,8 +98,8 @@
   (loop for x from (+ 100 (lastx rocks)) to (+ 500 (x *game*)) by 100
         do (case (rock-mode)
              (:stand-by
-              (sp:enq (list x 100) rocks)
-              (sp:enq (list x 200) rocks))
+              (sp:enq (list x 80) rocks)
+              (sp:enq (list x 240) rocks))
              (:easy
               (sp:enq (list x (if (random-chance 1/2)
                                   (random 300)
@@ -151,7 +152,6 @@
                                   +time-stop-speed+))))
 
 (defun move-train (&aux (dt (pop-time (frame-clock *game*))))
-  (s:text (format nil "~,4F" dt) 0 0)
   (incf (x *game*) (* +train-speed+ dt))
   (incf (y *game*) (* +train-speed+ dt
                       (tan (s:radians (α *game*)))))
@@ -171,12 +171,15 @@
 
 ;; collisions
 
+(defun end-of-world ()
+  (start-end-animation))
+
 (defun collides (type x y)
   (case type
     (:rock
      (multiple-value-bind (dx dy) (distance x (+ y 20) (x *game*) (y *game*) (α *game*))
-       (and (< dx 20)
-            (< dy 7))))
+       (and (<= dx 20)
+            (<= dy 15))))
     ((:heart :coin)
      (multiple-value-bind (dx dy) (distance x y (x *game*) (y *game*) (α *game*))
        (< (max dx dy) 20)))))
@@ -184,11 +187,11 @@
 (defun rock-gonna-collide (x y)
   (multiple-value-bind (dx dy) (distance x (+ y 20) (x *game*) (y *game*) (α *game*))
     (declare (ignore dx))
-    (< dy 7)))
+    (<= dy 15)))
 
 (defun check-collisions ()
   (unless (<= 15 (y *game*) 300)
-    :end-of-world)
+    (end-of-world))
   (mapcar #'collide-with-rock
           (loop for rock in (sp:qlist (rocks *game*))
                 when (apply #'collides :rock rock)
@@ -217,7 +220,7 @@
 (defun collide-with-rock (rock)
   (decf (lifes *game*))
   (if (<= (lifes *game*) 0)
-      :end-of-world
+      (end-of-world)
       (setf (cadr rock) -200)))
 
 ;; controls
@@ -233,6 +236,7 @@
 
 (defun start-game ()
   (setf (mode *game*) :game)
+  (setf (dac *game*) (sc:make-clock :time-source *game-clock*))
   (setf (score-line *game*)
         (+ (x *game*) +d-score-line+)))
 
