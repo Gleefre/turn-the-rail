@@ -8,6 +8,9 @@
 (defparameter +game-speed+ 2)
 (defparameter +time-stop-speed+ 1/10)
 
+(defparameter +game-rotate-speed+ 50)
+(defparameter +max-rotate+ 45)
+
 (defparameter +train-speed+ 50)
 
 ;; rock is 40x40
@@ -83,10 +86,10 @@
 (defun rock-mode ()
   (cond
     ((eq (mode *game*) :idle) :stand-by)
-    ((< (score *game*) 10) :easy)
-    ((< (score *game*) 20) :medium)
-    ((< (score *game*) 30) :hard)
-    ((< (score *game*) 40) :hell)
+    ((< (score *game*) 250) :easy)
+    ((< (score *game*) 500) :medium)
+    ((< (score *game*) 750) :hard)
+    ((< (score *game*) 1000) :hell)
     (t :impossible)))
 
 (defun generate-rocks (&aux (rocks (rocks *game*)))
@@ -140,15 +143,27 @@
 ;; moving the train
 
 (defun rotate-rails ()
-  (setf (α *game*) (cycle-pos (rotate-clock *game*) -20 20 :multiplier 100)))
+  (setf (α *game*)
+        (cycle-pos (rotate-clock *game*)
+                   (- +max-rotate+)
+                   +max-rotate+
+                   :multiplier (/ +game-rotate-speed+
+                                  +time-stop-speed+))))
 
 (defun move-train (&aux (dt (pop-time (frame-clock *game*))))
   (s:text (format nil "~,4F" dt) 0 0)
   (incf (x *game*) (* +train-speed+ dt))
   (incf (y *game*) (* +train-speed+ dt
                       (tan (s:radians (α *game*)))))
+  (update-score-line)
   (update-camera)
   (check-collisions))
+
+(defun update-score-line ()
+  (unless (eq (mode *game*) :idle)
+    (loop while (>= (x *game*) (score-line *game*))
+          do (incf (score-line *game*) +d-score-line+)
+             (incf (score *game*)))))
 
 (defun update-camera ()
   (setf (cx *game*) (- (x *game*) 100)
@@ -172,6 +187,8 @@
     (< dy 7)))
 
 (defun check-collisions ()
+  (unless (<= 15 (y *game*) 300)
+    :end-of-world)
   (mapcar #'collide-with-rock
           (loop for rock in (sp:qlist (rocks *game*))
                 when (apply #'collides :rock rock)
@@ -188,26 +205,20 @@
 ;; collisions results
 
 (defun collect-coin (coin)
-  (incf (score *game*))
+  (incf (score *game*) 10)
   (setf (cadr coin) -200))
 
 (defun collect-life-orb (life-orb)
+  (if (>= (lifes *game*) 3)
+      (incf (score *game*) 5)
+      (incf (lifes *game*)))
   (setf (cadr life-orb) -200))
 
 (defun collide-with-rock (rock)
-  (decf (score *game*) 20)
-  (setf (cadr rock) -200))
-
-;; controls
-
-(defun pause-game ()
-  (sc:pause *game-clock*))
-
-(defun unpause-game ()
-  (sc:run *game-clock*))
-
-(defun toggle-game ()
-  (sc:toggle *game-clock*))
+  (decf (lifes *game*))
+  (if (<= (lifes *game*) 0)
+      :end-of-world
+      (setf (cadr rock) -200)))
 
 ;; controls
 

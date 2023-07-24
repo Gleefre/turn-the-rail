@@ -143,7 +143,7 @@
 
 (defun draw-score (w h)
   (s:with-font (s:make-font :size 30 :align :left :color (s:hex-to-color "#1D2B53"))
-    (s:text (format nil "Score: ~A" (score *game*)) 0 0)))
+    (s:text (format nil "Score: ~A Lifes: ~A" (score *game*) (lifes *game*)) 0 0)))
 
 (defun draw-pause (w h)
   (s:with-font (s:make-font :size 30 :align :center :color (s:hex-to-color "#1D2B53"))
