@@ -109,7 +109,47 @@
   (setf (cx *game*) (- (x *game*) 100)
         (cy *game*) 0))
 
-(defun check-collisions ())
+;; collisions
+
+(defun collides (type x y)
+  (case type
+    (:rock
+     (multiple-value-bind (dx dy) (distance x (+ y 20) (x *game*) (y *game*) (α *game*))
+       (and (< dx 20)
+            (< dy 7))))
+    ((:heart :coin)
+     (multiple-value-bind (dx dy) (distance x y (x *game*) (y *game*) (α *game*))
+       (< (max dx dy) 20)))))
+
+(defun rock-gonna-collide (x y)
+  (multiple-value-bind (dx dy) (distance x (+ y 20) (x *game*) (y *game*) (α *game*))
+    (declare (ignore dx))
+    (< dy 7)))
+
+(defun check-collisions ()
+  (mapcar #'collide-with-rock
+          (loop for rock in (sp:qlist (rocks *game*))
+                when (apply #'collides :rock rock)
+                collect rock))
+  (mapcar #'collect-life-orb
+          (loop for heart in (sp:qlist (life-orbs *game*))
+                when (apply #'collides :heart heart)
+                collect heart))
+  (mapcar #'collect-coin
+          (loop for coin in (sp:qlist (coins *game*))
+                when (apply #'collides :coin coin)
+                collect coin)))
+
+;; collisions results
+
+(defun collect-coin (coin)
+  (incf (score *game*))
+  (setf (cadr coin) -100))
+
+(defun collect-life-orb (life-orb)
+  (setf (cadr life-orb) -100))
+
+(defun collide-with-rock (rock))
 
 ;; controls
 

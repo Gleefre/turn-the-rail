@@ -53,7 +53,9 @@
                      (draw-rock-shape 40 40)))
                  (s+:with-color ((s:hex-to-color "#000000"))
                    (draw-rock-shape 40 40))
-                 (s+:with-color ((s:hex-to-color "#FF004D"#+nil"#C2C3C7"))
+                 (s+:with-color ((s:hex-to-color (if (rock-gonna-collide x y)
+                                                     "#FF004D"
+                                                     "#C2C3C7")))
                    (draw-rock-sign 40 40)))))))
 
 (defun draw-rock-shape (w h)
