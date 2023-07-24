@@ -8,7 +8,7 @@
 (defparameter +game-speed+ 2)
 (defparameter +time-stop-speed+ 1/10)
 
-(defparameter +train-speed+ 100)
+(defparameter +train-speed+ 50)
 
 ;; rock is 40x40
 ;; coin is 20x20

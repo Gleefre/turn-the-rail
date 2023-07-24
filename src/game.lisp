@@ -41,4 +41,4 @@
        (when (eq state :keydown)
          (click-on-pause)))
       (:scancode-r
-       (setf (y *game*) 150)))))
+       (setf (game-window-game window) (make-game))))))
