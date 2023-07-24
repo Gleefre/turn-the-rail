@@ -104,8 +104,10 @@
     (s+:with-translate ((x *game*) (y *game*))
       (s+:with-rotate ((α *game*))
         (s+:with-translate (0 -15)
-          (s+:with-scale (1 (+ 1 (/ (sin (cycle-pos *game-clock* -30 30 :multiplier 2))
-                                    10))
+          (s+:with-scale (1 (+ 1 (if (eq :end (mode *game*))
+                                     0
+                                     (/ (sin (cycle-pos *game-clock* -30 30 :multiplier 2))
+                                        10)))
                           0 15)
             (s+:with-color ((s+:filter-alpha (s:hex-to-color "#C2C3C7") .5))
               (with-shear (-20 15)
@@ -144,7 +146,9 @@
   `(setf (animation *game*) nil))
 
 (defun start-end-animation ()
+  (sc:stop (main-clock *game*))
   (sc:stop *game-clock*)
+  (setf (mode *game*) :end)
   (let* ((new-game (make-game))
          (cx (cx *game*))
          (cy (cy *game*)))
@@ -173,10 +177,7 @@
         (s+:with-rotate ((* (ease:out-quint v) (- (α *game*))) 200 300)
           (draw-background)
           (s+:with-scale ((a:lerp (ease:in-quad v) 1 10) (a:lerp (ease:in-quad v) 1 10) 200 300)
-            (s+:with-scale (1 (a:lerp v 1 (/ (+ 1 (/ (sin (cycle-pos *game-clock* -30 30 :multiplier 2))
-                                                     10))))
-                            200 300)
-              (draw-world 400 300))))))))
+            (draw-world 400 300)))))))
 
 ;; Header
 
@@ -205,8 +206,9 @@
                  (draw-heart-shape 1 1))))))
 
 (defun draw-directions ()
-  (s:with-font (s:make-font :size 50 :align :center :color (s:hex-to-color "#1D2B53"))
-    (s:text "Press SPACE to start." 400 (cycle-pos *game-clock* 345 355 :multiplier 5))))
+  (s:with-font (s:make-font :size 40 :align :center :color (s:hex-to-color "#1D2B53"))
+    (s:text "Press SPACE to start.
+Use SPACE to turn the rain." 400 (cycle-pos *game-clock* 325 335 :multiplier 5))))
 
 (defun animate-directions ()
   (when (dac *game*)
@@ -214,8 +216,9 @@
       (if (> v 1)
           (setf (dac *game*) nil)
           (s+:with-scale ((cos (* 1/2 pi v)) (cos (* 1/2 pi v)) 400 350)
-            (s:with-font (s:make-font :size 50 :align :center :color (s:hex-to-color "#1D2B53"))
-              (s:text "Press SPACE to start." 400 (cycle-pos *game-clock* 345 355 :multiplier 5))))))))
+            (s:with-font (s:make-font :size 40 :align :center :color (s:hex-to-color "#1D2B53"))
+              (s:text "Press SPACE to start.
+Use SPACE to turn the rain." 400 (cycle-pos *game-clock* 325 335 :multiplier 5))))))))
 
 (defmacro named-button ((x y w h name &optional (dy 1/3)) (&optional (when :press)) &body press-body)
   `(progn

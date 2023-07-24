@@ -36,7 +36,7 @@
 (defclass game ()
   ((main-clock :initarg :main-clock :accessor main-clock)
    (clock :initarg :clock :accessor game-clock)
-   (mode :initform :idle :type (member :idle :game)
+   (mode :initform :idle :type (member :idle :game :end)
          :accessor mode)
    (rocks :initform (sp:queue (list +rock-offset+ -200)) :accessor rocks)
    (coins :initform (sp:queue (list +coin-offset+ -200)) :accessor coins)
