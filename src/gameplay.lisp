@@ -209,19 +209,25 @@
 
 (defun collect-coin (coin)
   (incf (score *game*) 10)
-  (setf (cadr coin) -200))
+  (setf (cadr coin) -200)
+  (with-shift (a:random-elt '(-5 -2 0 2 5))
+    (sfx 0 7)))
 
 (defun collect-life-orb (life-orb)
   (if (>= (lifes *game*) 3)
       (incf (score *game*) 5)
       (incf (lifes *game*)))
-  (setf (cadr life-orb) -200))
+  (setf (cadr life-orb) -200)
+  (with-shift (a:random-elt '(-5 -2 0 2 5))
+    (sfx 0 5)))
 
 (defun collide-with-rock (rock)
   (decf (lifes *game*))
   (if (<= (lifes *game*) 0)
       (end-of-world)
-      (setf (cadr rock) -200)))
+      (setf (cadr rock) -200))
+  (with-shift (a:random-elt '(-5 -2 0 2 5))
+    (sfx 0 1)))
 
 ;; controls
 
